@@ -8,6 +8,12 @@ Bundler.require(*Rails.groups)
 
 module TrkRailsFormsHotwireTodoAppBootstrapModal
   class Application < Rails::Application
+    config.generators do |generate|
+      generate.jbuilder false
+      generate.helper false
+      generate.stylesheets false
+      generate.test_framework nil
+    end
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
 
