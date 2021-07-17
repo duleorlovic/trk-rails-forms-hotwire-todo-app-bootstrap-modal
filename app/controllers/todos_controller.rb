@@ -3,7 +3,7 @@ class TodosController < ApplicationController
 
   # GET /todos or /todos.json
   def index
-    @todos = Todo.all
+    @todos = Todo.all.order(created_at: :desc)
   end
 
   # GET /todos/1 or /todos/1.json
@@ -12,48 +12,46 @@ class TodosController < ApplicationController
 
   # GET /todos/new
   def new
+    if params[:redirection_happens].blank?
+      redirect_to new_todo_path(redirection_happens: true)
+    end
     @todo = Todo.new
   end
 
   # GET /todos/1/edit
   def edit
+    if params[:redirection_happens].blank?
+      redirect_to edit_todo_path(params[:id], redirection_happens: true)
+    end
   end
 
   # POST /todos or /todos.json
   def create
     @todo = Todo.new(todo_params)
 
-    respond_to do |format|
-      if @todo.save
-        format.html { redirect_to @todo, notice: "Todo was successfully created." }
-        format.json { render :show, status: :created, location: @todo }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @todo.errors, status: :unprocessable_entity }
-      end
+    if @todo.save
+      notice = 'Todo was successfully created.'
+      render turbo_stream: turbo_stream.append('todos', @todo)
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /todos/1 or /todos/1.json
   def update
-    respond_to do |format|
-      if @todo.update(todo_params)
-        format.html { redirect_to @todo, notice: "Todo was successfully updated." }
-        format.json { render :show, status: :ok, location: @todo }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @todo.errors, status: :unprocessable_entity }
-      end
+    notice = 'Todo was successfully updated.'
+    if @todo.update(todo_params)
+      render @todo
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
   # DELETE /todos/1 or /todos/1.json
   def destroy
     @todo.destroy
-    respond_to do |format|
-      format.html { redirect_to todos_url, notice: "Todo was successfully destroyed." }
-      format.json { head :no_content }
-    end
+    notice = 'Todo was successfully destroyed.'
+    render turbo_stream: turbo_stream.remove("todo-frame-#{ @todo.id}")
   end
 
   private

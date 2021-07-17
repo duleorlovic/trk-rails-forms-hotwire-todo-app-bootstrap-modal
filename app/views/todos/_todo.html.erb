@@ -1,0 +1,17 @@
+<%= turbo_frame_tag "todo-frame-#{todo.id}", target: 'modal' do %>
+  <div class='row py-1 <%= 'bg-success bg-gradient' if todo.completed? %>'>
+    <div class='col'>
+      <%= todo.title %>
+    </div>
+    <div class='col'>
+      <%= link_to 'Show', todo, 'data-turbo-frame': '_top' %>
+      <%= link_to 'Edit', edit_todo_path(todo), class: 'btn btn-primary' %>
+      <% if todo.completed? %>
+        <%= button_to 'Uncomplete', todo_path(todo, todo: { completed: false }), class: 'btn btn-light', method: :patch, form_class: 'd-inline', form: { 'data-turbo-frame': "todo-frame-#{todo.id}" } %>
+      <% else %>
+        <%= button_to 'Complete', todo_path(todo, todo: { completed: true }), class: 'btn btn-success', method: :patch, form_class: 'd-inline', form: { 'data-turbo-frame': "todo-frame-#{todo.id}" } %>
+      <% end %>
+      <%= link_to 'Destroy', todo, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger' %>
+    </div>
+  </div>
+<% end %>
